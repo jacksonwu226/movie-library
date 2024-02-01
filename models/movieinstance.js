@@ -9,7 +9,7 @@ const MovieInstanceSchema = new Schema({
     enum: ["in-stock", "in-cart", "sold", "unavailable"],
     default: "unavailable"
   },
-  price: {type: Schema.Types.Decimal128},
+  price: {type: Schema.Types.Decimal128, required: true},
 })
 
 MovieInstanceSchema.virtual('url').get(function(){

@@ -33,4 +33,4 @@ ActorSchema.virtual("url").get(function(){
   return `/catalog/author/${this._id}`
 });
 
-module.export = mongoose.model("Actor", ActorSchema);
+module.exports = mongoose.model("Actor", ActorSchema);
