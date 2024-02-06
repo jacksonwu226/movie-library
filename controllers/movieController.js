@@ -9,8 +9,21 @@ exports.index = asyncHandler(async(req, res, next) => {
   const [numMovies, numMovieInstances, numAvailableMovieInstances, numDirectors, numActors, numGenres,
   ] = await Promise.all([
       Movie.countDocuments({}).exec(),
-      Mo
-    ])
+      MovieInstance.countDocuments({}).exec(),
+      MovieInstance.countDocuments({status:'in-stock'}).exec(),
+      Director.countDocuments({}).exec(),
+      Actor.countDocuments({}).exec(),
+      Genre.countDocuments({}).exec(),
+    ]);
+  res.render('index', {
+    title: "Movie Library Home",
+    movie_count: numMovies,
+    movie_instance_count: numMovieInstances,
+    movie_instance_available_count: numAvailableMovieInstances,
+    director_count: numDirectors,
+    actor_count: numActors,
+    genre_count: numGenres,
+  });
 });
 
 exports.movie_list = asyncHandler(async(req, res, next) => {
