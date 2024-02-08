@@ -1,0 +1,19 @@
+extends layout 
+
+block content 
+
+  h1 ID: #{movieinstance._id}
+
+  p #[strong Title: ]
+    a(href = movieinstance.url) #{movieinstance.movie.title}
+  p #[strong Status: ]
+    if movieinstance.status == 'in-stock'
+      span.text-success #{movieinstance.status}
+    else if movieinstance.status == 'in-cart'
+      span.text-warning #{movieinstance.status}
+    else if movieinstance.status == 'sold'
+      span.text-danger #{movieinstance.status}
+    else 
+      span.text-secondary #{movieinstance.status}
+  p #[strong Price: ]
+    span $#{movieinstance.price}

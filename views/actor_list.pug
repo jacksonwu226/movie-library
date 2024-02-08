@@ -8,7 +8,7 @@ block content
     ul 
       each actor in actor_list 
         li 
-          a(href=actor_list) #{actor.name} 
+          a(href=actor.url) #{actor.name} 
           | (#{actor.lifespan})
   else 
     p There are no actors

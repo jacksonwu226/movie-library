@@ -1,4 +1,5 @@
 const Director = require("../models/director");
+const Movie = require("../models/movie");
 const asyncHandler = require("express-async-handler");
 
 exports.director_list = asyncHandler(async(req, res, next) => {
@@ -12,7 +13,25 @@ exports.director_list = asyncHandler(async(req, res, next) => {
 });
 
 exports.director_detail = asyncHandler(async(req, res, next) => {
-  res.send(`Not implemented: director detail: ${req.params.id}`);
+  const [director, allMoviesByDirector] = await Promise.all([
+    Director.findById(req.params.id).exec(),
+    Movie.find({director: req.params.id}, "title synopsis")
+      .sort({title: 1})
+      .exec()
+  ]);
+  console.log("director not found")
+
+  if(director === null){
+    console.log("director not found");
+    const err = new Error("Director not found");
+    err.status = 404;
+    return next(err);
+  }
+  res.render("director_detail", {
+    title: "Director Detail",
+    director: director,
+    director_movies: allMoviesByDirector
+  });
 });
 
 exports.director_create_get = asyncHandler(async(req,res,next) => {

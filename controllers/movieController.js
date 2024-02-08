@@ -36,7 +36,21 @@ exports.movie_list = asyncHandler(async(req, res, next) => {
 });
 
 exports.movie_detail = asyncHandler(async(req, res, next) => {
-  res.send(`Not implemented: movie detail: ${req.params.id}`);
+  const [movie, movieInstances] = await Promise.all([
+    Movie.findById(req.params.id).populate("director")
+    .populate("actor").populate("genre"),
+    MovieInstance.find({movie: req.params.id}).exec(),
+  ]);
+  if(movie === null){
+    const err = new Error ("Movie not found");
+    err.status = 404;
+    return next(err);
+  }
+  res.render("movie_detail", {
+    title: movie.title,
+    movie: movie,
+    movie_instances: movieInstances
+  });
 });
 
 // Display movie create form on GET.

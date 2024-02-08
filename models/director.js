@@ -30,7 +30,7 @@ DirectorSchema.virtual("lifespan").get(function() {
 });
 
 DirectorSchema.virtual("url").get(function(){
-  return `/catalog/author/${this._id}`
+  return `/catalog/director/${this._id}`
 });
 
 

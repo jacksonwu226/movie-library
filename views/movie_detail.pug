@@ -1,0 +1,40 @@
+extends layout
+
+block content
+  h1 Title: #{title}
+
+  p #[strong Director: ]
+    a(href=movie.director.url) #{movie.director.name}
+  p #[strong Actors: ]
+    each actor, index in movie.actor
+      a(href=actor.url) #{actor.name}
+      if index < movie.actor.length -1
+        | ,&nbsp;
+  p #[strong Synopsis:] #{movie.synopsis}
+  p #[strong Length:] #{movie.length} minutes
+  p #[strong Rating: ] #{movie.rating} 
+  p #[strong Genre: ]
+    each genre, index in movie.genre
+      a(href=genre.url) #{genre.name}
+      if index < movie.genre.length - 1
+        |,&nbsp;
+
+  div(style='margin-left:20px;margin-top:20px')
+    h4 Inventory
+
+    each instance in movie_instances
+      hr
+      if instance.status=='in-stock'
+        p.text-success #{instance.status}
+      else if instance.status=='in-cart'
+        p.text-warning #{instance.status}
+      else if instance.status=='sold'
+        p.text-danger #{instance.status}
+      else
+        p.text-secondary #{instance.status}
+      p #[strong Price:] #{instance.price}
+      p #[strong Id: ]
+        a(href=instance.url) #{instance._id}
+
+    else
+      p There are no copies of this book in the library.

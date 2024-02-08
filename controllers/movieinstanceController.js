@@ -11,7 +11,18 @@ exports.movieinstance_list = asyncHandler(async (req, res, next) => {
 });
 
 exports.movieinstance_detail = asyncHandler(async (req,res, next)=> {
-  res.send(`NOT IMPLEMENTED: BOOK INSTANCE DETAIL: ${req.params.id}`);
+  const movieInstance = await MovieInstance.findById(req.params.id).
+    populate("movie").
+    exec();
+  if(movieInstance === null){
+    const err = new Error("Movie instance not found");
+    err.status = 404;
+    return next(err);
+  }
+  res.render('movieinstance_detail', {
+    title: "Movie: ",
+    movieinstance: movieInstance
+  })
 });
 
 exports.movieinstance_create_get = asyncHandler(async (req, res, next) => {
