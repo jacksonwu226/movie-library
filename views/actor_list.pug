@@ -1,0 +1,14 @@
+extend layout 
+
+block content 
+
+  h1=title 
+
+  if actor_list.length 
+    ul 
+      each actor in actor_list 
+        li 
+          a(href=actor_list) #{actor.name} 
+          | (#{actor.lifespan})
+  else 
+    p There are no actors

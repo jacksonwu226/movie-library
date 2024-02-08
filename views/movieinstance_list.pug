@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h1= title
+
+  if movieinstance_list.length
+    ul
+      each val in movieinstance_list
+        li
+          a(href=val.url) #{val.movie.title}-&nbsp;
+          if val.status=='in-stock'
+            span.text-success #{val.status}
+          else if val.status=='in-cart'
+            span.text-warning #{val.status}
+          else if val.status == 'sold'
+            span.text-warning #{val.status}
+          else 
+            span.text-secondary #{val.status}
+
+  else
+    p There are no book copies in this library.

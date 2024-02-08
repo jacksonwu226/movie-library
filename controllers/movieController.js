@@ -27,7 +27,12 @@ exports.index = asyncHandler(async(req, res, next) => {
 });
 
 exports.movie_list = asyncHandler(async(req, res, next) => {
-  res.send(`Not implemented: movie list`);
+  const allMovies = await Movie.find({}, "title director")
+    .sort({ title: 1})
+    .populate("director")
+    .exec();
+
+    res.render("movie_list", { title: "Movie List", movie_list: allMovies});
 });
 
 exports.movie_detail = asyncHandler(async(req, res, next) => {

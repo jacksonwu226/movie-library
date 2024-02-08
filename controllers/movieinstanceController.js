@@ -3,7 +3,11 @@ const asyncHandler = require("express-async-handler");
 
 // display all movie instances
 exports.movieinstance_list = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Movie instance list");
+  const allMovieInstances = await MovieInstance.find({}).populate("movie").exec();
+  res.render("movieinstance_list", {
+    title: "Movie Instance List",
+    movieinstance_list : allMovieInstances
+  });
 });
 
 exports.movieinstance_detail = asyncHandler(async (req,res, next)=> {

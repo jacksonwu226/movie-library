@@ -126,7 +126,8 @@ async function createDirectors(){
   await Promise.all([
     directorCreate(0, 'Peter', 'Jackson', '1961-10-31', false),
     directorCreate(1, 'Christopher', 'Nolan', '1970-07-30', false),
-    directorCreate(2, 'Denis', 'Villeneuve', '1967-10-03', false)
+    directorCreate(2, 'Denis', 'Villeneuve', '1967-10-03', false),
+    directorCreate(3, 'John', 'Krasinski', '1979-10-20', false)
   ]);
 }
 
@@ -208,7 +209,8 @@ async function createMovies(){
       7.0),
     movieCreate(7, 
       'A Quiet Place', 
-      directors[3], [actors[9], actors[6], actors[4]], 
+      directors[3], 
+      [actors[9], actors[6], actors[4]], 
       '90',
       "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.", 
       genres[2], 

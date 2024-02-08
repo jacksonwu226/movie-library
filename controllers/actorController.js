@@ -2,7 +2,13 @@ const Actor = require("../models/actor");
 const asyncHandler = require("express-async-handler");
 
 exports.actor_list = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: actor list");
+  const allActors = await Actor.find()
+    .sort({family_name: 1})
+    .exec();
+  res.render("actor_list", {
+    title: "Actor List",
+    actor_list: allActors
+  });
 });
 
 exports.actor_detail = asyncHandler(async(req, res, next) => {
