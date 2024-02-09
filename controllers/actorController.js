@@ -1,5 +1,6 @@
 const Actor = require("../models/actor");
 const Movie = require("../models/movie")
+const {body, validationResult} = require("express-validator");
 const asyncHandler = require("express-async-handler");
 
 exports.actor_list = asyncHandler(async(req, res, next) => {
@@ -31,13 +32,54 @@ exports.actor_detail = asyncHandler(async(req, res, next) => {
   });
 });
 
-exports.actor_create_get = asyncHandler(async(req,res,next) => {
-  res.send("Not implemented: actor create get");
-});
+exports.actor_create_get = (req, res, next) => {
+  res.render("actor_form", {title: "Create Actor"});
+}
 
-exports.actor_create_post = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: actor create post");
-});
+exports.actor_create_post =[
+  body("first_name")
+  .trim()
+  .isLength({min: 1})
+  .escape()
+  .withMessage("First name must be specified.")
+  .isAlphanumeric()
+  .withMessage("First name has non-alphanumeric characters."),
+body("family_name")
+  .trim()
+  .isLength({min: 1})
+  .escape()
+  .withMessage("Family name must be specified.")
+  .isAlphanumeric()
+  .withMessage("Family name has non-alphanumeric characters."),
+body("date_of_birth", "Invalid date of birth")
+  .optional({values: "falsy"})
+  .isISO8601().
+  toDate(),
+body("date_of_birth", "Invalid date of birth")
+  .optional({values: "falsy"})
+  .isISO8601().
+  toDate(),
+  asyncHandler(async(req, res, next) => {
+    const errors = validationResult(req);
+    const actor = new Actor({
+      first_name: req.body.first_name,
+      family_name: req.body.family_name,
+      date_of_birth: req.body.date_of_birth,
+      date_of_death: req.body.date_of_death,
+    });
+    if(!errors.isEmpty()){
+      res.render("actor_form", {
+        title: "Create Director",
+        actor: actor,
+        errors: errors.array(),
+      });
+      return;
+    }else{
+      await actor.save();
+      res.redirect(actor.url);
+    }
+  })
+]
 
 exports.actor_delete_get = asyncHandler(async(req, res, next) => {
   res.send("Not implemented: actor delete get");

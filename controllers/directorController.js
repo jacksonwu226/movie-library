@@ -1,5 +1,7 @@
 const Director = require("../models/director");
 const Movie = require("../models/movie");
+const { body, validationResult } = require("express-validator");
+
 const asyncHandler = require("express-async-handler");
 
 exports.director_list = asyncHandler(async(req, res, next) => {
@@ -34,13 +36,56 @@ exports.director_detail = asyncHandler(async(req, res, next) => {
   });
 });
 
-exports.director_create_get = asyncHandler(async(req,res,next) => {
-  res.send("Not implemented: director create get");
-});
+exports.director_create_get = (req,res,next) =>{
+  res.render("director_form", {title: "Create Director"});
+};
 
-exports.director_create_post = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: director create post");
-});
+exports.director_create_post = [
+  body("first_name")
+    .trim()
+    .isLength({min: 1})
+    .escape()
+    .withMessage("First name must be specified.")
+    .isAlphanumeric()
+    .withMessage("First name has non-alphanumeric characters."),
+  body("family_name")
+    .trim()
+    .isLength({min: 1})
+    .escape()
+    .withMessage("Family name must be specified.")
+    .isAlphanumeric()
+    .withMessage("Family name has non-alphanumeric characters."),
+  body("date_of_birth", "Invalid date of birth")
+    .optional({values: "falsy"})
+    .isISO8601().
+    toDate(),
+  body("date_of_birth", "Invalid date of birth")
+    .optional({values: "falsy"})
+    .isISO8601().
+    toDate(),
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const director = new Director({
+      first_name: req.body.first_name,
+      family_name: req.body.family_name,
+      date_of_birth: req.body.date_of_birth,
+      date_of_death: req.body.date_of_death,
+    });
+    if(!errors.isEmpty()){
+      res.render("director_form",{
+        title: "Create Director",
+        director: director,
+        errors: errors.array(),
+      });
+      return;
+    }else{
+      await director.save();
+      res.redirect(director.url);
+    }
+  })
+]
+
 
 exports.director_delete_get = asyncHandler(async(req, res, next) => {
   res.send("Not implemented: director delete get");
