@@ -34,11 +34,19 @@ exports.movieinstance_create_post = asyncHandler(async(req, res, next)=> {
 });
 
 exports.movieinstance_delete_get = asyncHandler(async(req,res,next)=>{
-  res.send("NOT IMPLEMENTED: MOVIE INSTANCE DELETE GET");
+  const movieinstance = await MovieInstance.findById(req.params.id).populate('movie').exec();
+  if(movieinstance === null){
+    res.redirect('/catalog/movieinstances')
+  }
+  res.render("movieinstance_delete",{
+    title: "Delete movieinstance",
+    movieinstance: movieinstance,
+  })
 });
 
 exports.movieinstance_delete_post = asyncHandler(async(req, res, next) =>{
-  res.send("NOT IMPLEMENTED: BOOK INSTANCE DELETE POST");
+  await MovieInstance.findByIdAndDelete(req.body.id);
+  res.redirect("/catalog/movieinstances")
 })
 
 exports.movieinstance_update_post = asyncHandler(async(req, res, next)=>{
