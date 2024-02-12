@@ -1,0 +1,26 @@
+extends layout
+
+block content
+
+  h1 #{title}: #{actor.name}
+  p= actor.lifespan
+
+  if actor_movies.length
+
+    p #[strong Delete the following books before attempting to delete this author.]
+    div(style='margin-left:20px;margin-top:20px')
+      h4 Movies
+      dl
+        each movie in actor_movies
+          dt
+            a(href=movie.url) #{movie.title}
+          dd #{movie.synopsis}
+
+  else
+    p Do you really want to delete this Actor?
+
+    form(method='POST')
+      div.form-group
+        input#actorid.form-control(type='hidden', name='actorid', value=actor._id )
+
+      button.btn.btn-primary(type='submit') Delete
