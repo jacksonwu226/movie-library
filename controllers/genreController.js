@@ -62,11 +62,36 @@ exports.genre_create_post = [
   })
 ]
 exports.genre_delete_get = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: genre create post");
+  const [genre, allMoviesWithGenre] = await Promise.all([
+    Genre.findById(req.params.id).exec(),
+    Movie.find({genre: req.params.id}, "title synopsis").exec()
+  ]);
+  if(genre === null){
+    res.redirect("/catalog/genres");
+  }
+  res.render("genre_delete",{
+    title: "Delete Genre",
+    genre: genre,
+    genre_movies: allMoviesWithGenre
+  });
 });
 
 exports.genre_delete_post = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: genre delete post");
+  const [genre, allMoviesWithGenre] = await Promise.all([
+    Genre.findById(req.params.id).exec(),
+    Movie.find({genre: req.params.id}, "title synopsis").exec()
+  ]);
+  if(allMoviesWithGenre.length > 0){
+    res.render("genre_delete",{
+      title: "Delete Genre",
+      genre: genre,
+      genre_movies: allMoviesWithGenre
+    });
+    return;
+  }else{
+    await Genre.findByIdAndDelete(req.body.genreid);
+    res.redirect("/catalog/genres");
+  }
 });
 
 exports.genre_update_get = asyncHandler(async(req, res, next) => {
