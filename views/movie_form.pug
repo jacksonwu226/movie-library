@@ -1,0 +1,56 @@
+extends layout
+
+block content
+  h1= title
+
+  form(method='POST')
+    div.form-group
+      label(for='title') Title:
+      input#title.form-control(type='text', placeholder='Name of movie' name='title' required value=(undefined===movie ? '' : movie.title) )
+    div.form-group
+      label(for='director') director:
+      select#director.form-control(name='director' required)
+        option(value='') --Please select an director--
+        for director in directors
+          if movie
+            if director._id.toString()===movie.director._id.toString()
+              option(value=director._id selected) #{director.name}
+            else
+              option(value=director._id) #{director.name}
+          else
+            option(value=director._id) #{director.name}
+    div.form-group
+      label Actor:
+      div
+        for actor in actors
+          div(style='display: inline; padding-right:10px;')
+            if actor.checked
+              input.checkbox-input(type='checkbox', name='actor', id=actor._id, value=actor._id, checked)
+            else
+              input.checkbox-input(type='checkbox', name='actor', id=actor._id, value=actor._id)
+            label(for=actor._id) &nbsp;#{actor.name}
+    div.form-group
+      label(for='synopsis') Synopsis:
+      textarea#synopsis.form-control(placeholder='synopsis' name='synopsis' required value= (undefined===movie ? '' : movie.synopsis))
+    div.form-group
+      label(for='length') Length (minutes):
+      input#length.form-control(type='number', placeholder=0 name='length' min=0 value=(undefined===movie ? '' : movie.length) required)
+    div.form-group
+      label(for='rating') Rating:
+      input#rating.form-control(type='number', placeholder=0 name='rating' min=0 step=0.1 value=(undefined===movie ? '' : movie.rating))
+    div.form-group
+      label Genre:
+      div
+        for genre in genres
+          div(style='display: inline; padding-right:10px;')
+            if genre.checked
+              input.checkbox-input(type='checkbox', name='genre', id=genre._id, value=genre._id, checked)
+            else
+              input.checkbox-input(type='checkbox', name='genre', id=genre._id, value=genre._id)
+            label(for=genre._id) &nbsp;#{genre.name}
+    button.btn.btn-primary(type='submit') Submit
+
+  if errors
+    ul
+      for error in errors
+        li!= error.msg

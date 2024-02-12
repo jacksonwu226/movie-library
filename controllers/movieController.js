@@ -3,6 +3,8 @@ const Director = require("../models/director");
 const Actor = require("../models/actor");
 const Genre = require("../models/genre");
 const MovieInstance = require("../models/movieinstance");
+
+const {body, validationResult} = require("express-validator");
 const asyncHandler = require("express-async-handler");
 
 exports.index = asyncHandler(async(req, res, next) => {
@@ -55,13 +57,87 @@ exports.movie_detail = asyncHandler(async(req, res, next) => {
 
 // Display movie create form on GET.
 exports.movie_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: movie create GET");
+  const [allDirectors, allActors, allGenres] = await Promise.all([
+    Director.find().sort({family_name:1}).exec(),
+    Actor.find().sort({family_name:1}).exec(),
+    Genre.find().sort({name:1}).exec(),
+  ]);
+  res.render("movie_form",{
+    title: "Create Movie",
+    directors: allDirectors,
+    actors: allActors,
+    genres: allGenres
+  });
 });
 
 // Handle movie create on POST.
-exports.movie_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: movie create POST");
-});
+exports.movie_create_post =[
+  (req, res, next) => {
+    if(!Array.isArray(req.body.genre)){
+      req.body.genre = typeof req.body.genre === "undefined" ? [] : [req.body.genre];
+    }
+    next();
+  },
+  body("title", "Title must not be empty.")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+  body("director", "Director must not be empty.")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+  body("actor", "Actor must not be empty.")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+  body("synopsis", "Summary must not be empty")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+  body("length", "length must not be empty")
+    .trim()
+    .isFloat({min:1})
+    .escape(),
+  body("genre.*").escape(),
+  body("rating").isNumeric().escape(),
+
+  asyncHandler(async(req, res, next) =>{
+    const errors = validationResult(req);
+
+    const movie = new Movie({
+      title: req.body.title,
+      director: req.body.director,
+      actor: req.body.actor,
+      length: req.body.length,
+      synopsis: req.body.synopsis,
+      genre: req.body.genre,
+      rating: req.body.rating
+    });
+    if(!errors.isEmpty()){
+      const [allDirectors, allActors, allGenres] = await Promise.all([
+        Director.find().sort({family_name: 1}).exec(),
+        Actor.find().sort({family_name:1}).exec(),
+        Genre.find().sort({name:1}).exec(),
+      ])
+      for (const genre of allGenres) {
+        if (movie.genre.includes(genre._id)) {
+          genre.checked = "true";
+        }
+      }
+      res.render("movie_form", {
+        title: "Create Movie",
+        directors: allDirectors,
+        actors: allActors,
+        genres: allGenres,
+        movie: movie,
+        errors: errors.array(),
+      });
+    }else{
+      await movie.save();
+      res.redirect(movie.url);
+    }
+  })
+];
 
 // Display movie delete form on GET.
 exports.movie_delete_get = asyncHandler(async (req, res, next) => {
