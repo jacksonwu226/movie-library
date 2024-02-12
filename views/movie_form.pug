@@ -31,13 +31,13 @@ block content
             label(for=actor._id) &nbsp;#{actor.name}
     div.form-group
       label(for='synopsis') Synopsis:
-      textarea#synopsis.form-control(placeholder='synopsis' name='synopsis' required value= (undefined===movie ? '' : movie.synopsis))
+      textarea#synopsis.form-control(placeholder='synopsis' name='synopsis' required)= (undefined===movie ? '' : movie.synopsis)
     div.form-group
       label(for='length') Length (minutes):
       input#length.form-control(type='number', placeholder=0 name='length' min=0 value=(undefined===movie ? '' : movie.length) required)
     div.form-group
       label(for='rating') Rating:
-      input#rating.form-control(type='number', placeholder=0 name='rating' min=0 step=0.1 value=(undefined===movie ? '' : movie.rating))
+      input#rating.form-control(type='number', placeholder=0 name='rating' min=0 step=0.1 value=(undefined===movie ? '' : +movie.rating.toString()))
     div.form-group
       label Genre:
       div

@@ -6,6 +6,7 @@ const MovieInstance = require("../models/movieinstance");
 
 const {body, validationResult} = require("express-validator");
 const asyncHandler = require("express-async-handler");
+const genre = require("../models/genre");
 
 exports.index = asyncHandler(async(req, res, next) => {
   const [numMovies, numMovieInstances, numAvailableMovieInstances, numDirectors, numActors, numGenres,
@@ -76,6 +77,9 @@ exports.movie_create_post =[
     if(!Array.isArray(req.body.genre)){
       req.body.genre = typeof req.body.genre === "undefined" ? [] : [req.body.genre];
     }
+    if(!Array.isArray(req.body.actor)){
+      req.body.actor = typeof req.body.actor === "undefined" ? [] : [req.body.actor];
+    }
     next();
   },
   body("title", "Title must not be empty.")
@@ -86,10 +90,7 @@ exports.movie_create_post =[
     .trim()
     .isLength({min:1})
     .escape(),
-  body("actor", "Actor must not be empty.")
-    .trim()
-    .isLength({min:1})
-    .escape(),
+  body("actor.*").escape(),
   body("synopsis", "Summary must not be empty")
     .trim()
     .isLength({min:1})
@@ -122,6 +123,11 @@ exports.movie_create_post =[
       for (const genre of allGenres) {
         if (movie.genre.includes(genre._id)) {
           genre.checked = "true";
+        }
+      }
+      for(const actor of allActors){
+        if(movie.actor.includes(actor._id)){
+          actor.checked = "true";
         }
       }
       res.render("movie_form", {
@@ -192,10 +198,16 @@ exports.movie_update_get = asyncHandler(async (req, res, next) => {
     return next(err);
   }
   allGenres.forEach((genre) => {
-    if(movie.genre.includes(genre._id))
+    if(movie.genre.includes(genre._id)){
       genre.checked = "true";
+    }    
   })
 
+  allActors.forEach((actor) => {
+    if (movie.actor.some(_id => _id.equals(actor._id))) {
+      actor.checked = "true";
+    }
+  });
   res.render("movie_form",  {
     title: "Update Movie",
     directors: allDirectors,
@@ -206,6 +218,76 @@ exports.movie_update_get = asyncHandler(async (req, res, next) => {
 });
 
 // Handle movie update on POST.
-exports.movie_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: movie update POST");
-});
+exports.movie_update_post = [
+  (req, res, next) => {
+    if(!Array.isArray(req.body.genre)){
+      req.body.genre = typeof req.body.genre === "undefined" ? [] : [req.body.genre];
+    }
+    if(!Array.isArray(req.body.actor)){
+      req.body.actor = typeof req.body.actor === "undefined" ? [] : [req.body.actor];
+    }
+    next();
+  },
+  body("title", "Title must not be empty.")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+  body("director", "Director must not be empty.")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+  body("actor.*").escape(),
+  body("synopsis", "Summary must not be empty")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+  body("length", "length must not be empty")
+    .trim()
+    .isFloat({min:1})
+    .escape(),
+  body("genre.*").escape(),
+  body("rating").isNumeric().escape(),
+
+  asyncHandler(async(req, res, next) =>{
+    const errors = validationResult(req);
+
+    const movie = new Movie({
+      title: req.body.title,
+      director: req.body.director,
+      actor: req.body.actor,
+      length: req.body.length,
+      synopsis: req.body.synopsis,
+      genre: req.body.genre,
+      rating: req.body.rating,
+      _id: req.params.id,
+    });
+    if(!errors.isEmpty()){
+      const [allDirectors, allActors, allGenres] = await Promise.all([
+        Director.find().sort({family_name: 1}).exec(),
+        Actor.find().sort({family_name:1}).exec(),
+        Genre.find().sort({name:1}).exec(),
+      ])
+      for (const genre of allGenres) {
+        if (movie.genre.includes(genre._id)) {
+          genre.checked = "true";
+        }
+      }
+      for(const actor of allActors){
+        if(movie.actor.includes(actor._id)){
+          actor.checked = "true";
+        }
+      }
+      res.render("movie_form", {
+        title: "Create Movie",
+        directors: allDirectors,
+        actors: allActors,
+        genres: allGenres,
+        movie: movie,
+        errors: errors.array(),
+      });
+    }else{
+      const updateMovie = await Movie.findByIdAndUpdate(req.params.id, movie, {});
+      res.redirect(updateMovie.url);
+    }
+  })
+]
