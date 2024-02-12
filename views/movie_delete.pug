@@ -1,0 +1,42 @@
+extends layout 
+block content 
+  h1 #{title}: #{movie.title}
+
+  p #[strong Director: ]
+    a(href=movie.director.url) #(movie.director.name)
+  p #[strong Synopsis: ] #{movie.synopsis}
+  p #[strong Genre: ]
+    each val, index in movie.genre 
+      a(href=val.url) #{val.name}
+      if index < movie.genre.length -1
+      |,&nbsp;
+  hr
+
+  if movie_instances.length 
+    p #[strong Delete the following copies before attempting to delete this movie.]
+    div(style='margin-left:20;margin-top:20px')
+
+      h4 Instances 
+
+      each instance in movie_instances 
+        hr
+        p #[strong Status: ]
+        if movieinstance.status == 'in-stock'
+          span.text-success #{movieinstance.status}
+        else if movieinstance.status == 'in-cart'
+          span.text-warning #{movieinstance.status}
+        else if movieinstance.status == 'sold'
+          span.text-danger #{movieinstance.status}
+        else 
+          span.text-secondary #{movieinstance.status}
+        p #[strong Price: ]
+          span $#{movieinstance.price}
+        p #[strong Id:]
+          a(href=instance.url) #(instance._id)
+  else 
+    p Do you really want to delete this movie?
+
+    form(method='POST')
+      div.form-group
+        input#id.form-control(type='hidden', name='id', value=movie._id)
+      button.btn.btn-primary(type='submit') Delete

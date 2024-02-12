@@ -141,12 +141,40 @@ exports.movie_create_post =[
 
 // Display movie delete form on GET.
 exports.movie_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: movie delete GET");
+  const [movie, movieInstances] = await Promise.all([
+    Movie.findById(req.params.id).populate("director").populate("actor").populate("genre").exec(),
+    MovieInstance.find({movie: req.params.id}).exec(),
+  ])
+  if(movie === null){
+    res.redirect("/catalog/movies");
+  }
+  res.render("movie_delete", {
+    title: "Delete Movie",
+    movie: movie,
+    movie_instances: movieInstances,
+  });
 });
 
 // Handle movie delete on POST.
 exports.movie_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: movie delete POST");
+  const [movie, movieInstances] = await Promise.all([
+    Movie.findById(req.params.id).populate("director").populate("actor").populate("genre").exec(),
+    MovieInstance.find({movie: req.params.id}).exec(),
+  ]);
+  if(movie === null){
+    res.redirect("/catalog/movies");
+  }
+  if(movieInstances.length > 0){
+    res.render("movie_delete", {
+      titlie: "Delete Movie",
+      movie: movie,
+      movie_instances: movieInstances
+    });
+    return;
+  }else{
+    await Movie.findByIdAndDelete(req.body.id);
+    res.redirect("/catalog/movies");
+  }
 });
 
 // Display movie update form on GET.
@@ -158,7 +186,7 @@ exports.movie_update_get = asyncHandler(async (req, res, next) => {
     Genre.find().sort({name: 1}).exec(),
   ]);
 
-  if(movie  === null){
+  if(movie  === null){ 
     const err = new Error("Movie not found");
     err.status = 404;
     return next(err);
