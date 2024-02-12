@@ -104,7 +104,7 @@ exports.actor_delete_post = asyncHandler(async(req, res, next) => {
   if (allMoviesWithActor.length > 0){
     res.render("actor_delete",{
       title: "Delete Actor",
-      actor: this.actor_delete_post,
+      actor: actor,
       actor_movies: allMoviesWithActor,
     });
     return;
