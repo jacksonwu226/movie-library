@@ -88,11 +88,36 @@ exports.director_create_post = [
 
 
 exports.director_delete_get = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: director delete get");
+  const [director, allMoviesWithDirector] = await Promise.all([
+    Director.findById(req.params.id).exec(),
+    Movie.find({director: req.params.id}).exec(),
+  ]);
+  if(director === null){
+    res.redirect("/catalog/directors");
+  }
+  res.render("director_delete", {
+    title: "Delete Director",
+    director: director,
+    director_movies: allMoviesWithDirector
+  });
 });
 
 exports.director_delete_post = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: director delete post");
+  const [director, allMoviesWithDirector] = await Promise.all([
+    Director.findById(req.params.id),
+    Movie.find({director: req.params.id}).exec(),
+  ]);
+  if(allMoviesWithDirector.length > 0){
+    res.render("director_delete",{
+      title: "Delete Director",
+      director: director,
+      director_movies: allMoviesWithDirector
+    });
+    return;
+  } else{
+    await Director.findByIdAndDelete(req.body.directorid);
+    res.redirect("/catalog/directors");
+  }
 })
 
 exports.director_update_get = asyncHandler(async(req, res, next) => {

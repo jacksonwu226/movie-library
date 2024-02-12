@@ -17,3 +17,6 @@ block content
       span.text-secondary #{movieinstance.status}
   p #[strong Price: ]
     span $#{movieinstance.price}
+  hr
+  p 
+    a(href=movieinstance.url+'/delete') Delete movie instance 

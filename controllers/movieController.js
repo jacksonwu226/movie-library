@@ -151,7 +151,30 @@ exports.movie_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display movie update form on GET.
 exports.movie_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: movie update GET");
+  const [movie, allDirectors, allActors, allGenres] = await Promise.all([
+    Movie.findById(req.params.id).populate("director").populate("actor").exec(),
+    Director.find().sort({family_name: 1}).exec(),
+    Actor.find().sort({family_name: 1}).exec(),
+    Genre.find().sort({name: 1}).exec(),
+  ]);
+
+  if(movie  === null){
+    const err = new Error("Movie not found");
+    err.status = 404;
+    return next(err);
+  }
+  allGenres.forEach((genre) => {
+    if(movie.genre.includes(genre._id))
+      genre.checked = "true";
+  })
+
+  res.render("movie_form",  {
+    title: "Update Movie",
+    directors: allDirectors,
+    actors: allActors,
+    genres: allGenres,
+    movie: movie,
+  });
 });
 
 // Handle movie update on POST.

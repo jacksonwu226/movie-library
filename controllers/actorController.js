@@ -82,11 +82,36 @@ body("date_of_birth", "Invalid date of birth")
 ]
 
 exports.actor_delete_get = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: actor delete get");
+  const [actor, allMoviesWithActor] = await Promise.all([
+    Actor.findById(req.params.id).exec(),
+    Movie.find({actor: req.params.id}, "title synopsis").exec(),
+  ]);
+  if(actor == null){
+    res.redirect("/catalog/actors");
+  }
+  res.render("actor_delete", {
+    title: "Delete Actor",
+    actor: actor,
+    actor_movies: allMoviesWithActor
+  });
 });
 
 exports.actor_delete_post = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: actor delete post");
+  const [actor, allMoviesWithActor] = await Promise.all([
+    Actor.findById(req.params.id).exec(),
+    Movie.find({actor: req.params.id}, "title summary").exec()
+  ]);
+  if (allMoviesWithActor.length > 0){
+    res.render("actor_delete",{
+      title: "Delete Actor",
+      actor: actor,
+      actor_movies: allMoviesWithActor,
+    });
+    return;
+  }else{
+    await Actor.findByIdAndDelete(req.body.actorid);
+    res.redirect("/catalog/actors");
+  }
 })
 
 exports.actor_update_get = asyncHandler(async(req, res, next) => {
