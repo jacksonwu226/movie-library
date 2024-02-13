@@ -1,0 +1,35 @@
+extends layout
+
+block content
+  h1=title
+
+  form(method='POST')
+    div.form-group
+      label(for='movie') Movie:
+      select#movie.form-control(name='movie' required)
+        option(value='') --Please Select a Movie--
+        for movie in movie_list
+          if selected_Movie==movie._id.toString()
+            option(value=movie._id, selected) #{movie.title}
+          else
+            option(value=movie._id) #{movie.title}
+    div.form-group
+      label(for='status') Status:
+      select#status.form-control(name='status' required)
+        option(value='') --Please select a status--
+        each val in ['in-stock', 'in-cart', 'sold', 'unavailable']
+          if undefined===movieinstance || movieinstance.status!=val 
+            option(value=val)= val
+          else
+            option(value=val selected)= val
+
+    div.form-group
+      label(for='price') Price: 
+      input#price.form-control(type='number' placeholder=0.00 steps=0.01 name='price' required value=(undefined===movieinstance ? 0.00 : movieinstance.price))
+
+    button.btn.btn-primary(type='submit') Submit
+
+  if errors
+    ul
+      for error in errors
+        li!= error.msg
