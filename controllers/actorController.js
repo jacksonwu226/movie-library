@@ -115,9 +115,60 @@ exports.actor_delete_post = asyncHandler(async(req, res, next) => {
 })
 
 exports.actor_update_get = asyncHandler(async(req, res, next) => {
-  res.send("Not implemetned: actor update get");
+  const actor = await Actor.findById(req.params.id).exec();
+  if(actor === null){
+    const err = new Error("Actor not found");
+    err.status = 404;
+    return next(err);
+  }
+  res.render("actor_form", {
+    titie: "Update Actor",
+    actor: actor
+  })
 })
 
-exports.actor_update_post = asyncHandler(async(req, res, next) => {
-  res.send("Not implemented: actor update post");
-})
+exports.actor_update_post = [
+  body("first_name")
+  .trim()
+  .isLength({min: 1})
+  .escape()
+  .withMessage("First name must be specified.")
+  .isAlphanumeric()
+  .withMessage("First name has non-alphanumeric characters."),
+body("family_name")
+  .trim()
+  .isLength({min: 1})
+  .escape()
+  .withMessage("Family name must be specified.")
+  .isAlphanumeric()
+  .withMessage("Family name has non-alphanumeric characters."),
+body("date_of_birth", "Invalid date of birth")
+  .optional({values: "falsy"})
+  .isISO8601().
+  toDate(),
+body("date_of_birth", "Invalid date of birth")
+  .optional({values: "falsy"})
+  .isISO8601().
+  toDate(),
+  asyncHandler(async(req, res, next) => {
+    const errors = validationResult(req);
+    const actor = new Actor({
+      first_name: req.body.first_name,
+      family_name: req.body.family_name,
+      date_of_birth: req.body.date_of_birth,
+      date_of_death: req.body.date_of_death,
+      _id: req.params.id
+    });
+    if(!errors.isEmpty()){
+      res.render("actor_form", {
+        title: "Create Director",
+        actor: actor,
+        errors: errors.array(),
+      });
+      return;
+    }else{
+      await Actor.findByIdAndUpdate(req.params.id, actor);
+      res.redirect(actor.url);
+    }
+  })
+]
