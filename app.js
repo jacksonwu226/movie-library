@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-
+require('dotenv').config();
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const catalogRouter = require('./routes/catalog');
@@ -13,7 +13,7 @@ const app = express();
 // Set up mongoose connection
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
-const mongoDB = "mongodb+srv://jacksonwu226:dSDW6F6lZUe5eWCE@cluster0.aiqou4b.mongodb.net/movie_store?retryWrites=true&w=majority";
+const mongoDB = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.aiqou4b.mongodb.net/movie_store?retryWrites=true&w=majority`;
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);
